@@ -38,26 +38,16 @@ def logout_view(request):
 
 def index(request):
     if request.method == 'POST':
-        # Get data from the form
         nitrogen = request.POST.get('nitrogen')
         phosphorus = request.POST.get('phosphorus')
         potassium = request.POST.get('potassium')
         temperature = request.POST.get('temperature')
         humidity = request.POST.get('humidity')
         ph = request.POST.get('ph')
-        rainfall = request.POST.get('rainfall')
-
-        # Handle the data and return recommendations
-        # Here, you'll call your crop recommendation logic with the input data
-        # Example: recommendations = recommend_crops(nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall)
-
-        # For now, let's just send the values back for display purposes
-        recommendations = f"Your input data: Nitrogen={nitrogen}, Phosphorus={phosphorus}, Potassium={potassium}, Temperature={temperature}, Humidity={humidity}, pH={ph}, Rainfall={rainfall}"
-        print(recommendations)
-        # Optionally, you could pass the recommendations to the template to display them
+        rainfall = request.POST.get('rainfall')     
+        print(nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall)
         return redirect('recommend')
-    
-    return render(request, "index.html")
+    return render(request, 'new.html')
 
 def recommend_view(request):
     return render(request, "recommend.html")
