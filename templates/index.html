@@ -3,8 +3,51 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="text-center">
-  <h1 class="mt-5">🌾 Welcome to the Crop Recommendation System</h1>
-  <p class="lead mt-3">Get accurate crop suggestions based on your soil and climate data.</p>
+<div class="container text-center mt-5">
+    <h1>Welcome to Crop Recommender</h1>
+    <p class="lead">Get personalized crop suggestions based on your soil data</p>
+    
+    {% if user.is_authenticated %}
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="nitrogen" class="form-label">Nitrogen (N) ppm</label>
+                            <input type="number" class="form-control" id="nitrogen" name="nitrogen" required step="0.01">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phosphorus" class="form-label">Phosphorus (P) ppm</label>
+                            <input type="number" class="form-control" id="phosphorus" name="phosphorus" required step="0.01">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="potassium" class="form-label">Potassium (K) ppm</label>
+                            <input type="number" class="form-control" id="potassium" name="potassium" required step="0.01">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="temperature" class="form-label">Temperature (°C)</label>
+                            <input type="number" class="form-control" id="temperature" name="temperature" required step="0.1">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="humidity" class="form-label">Humidity (%)</label>
+                            <input type="number" class="form-control" id="humidity" name="humidity" required min="0" max="100" step="0.1">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="ph" class="form-label">Soil pH</label>
+                            <input type="number" class="form-control" id="ph" name="ph" required min="0" max="14" step="0.1">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="rainfall" class="form-label">Rainfall (mm)</label>
+                            <input type="number" class="form-control" id="rainfall" name="rainfall" required step="0.1">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg mt-4">Get Recommendations</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <p class="mt-4">You need to be <a href="{% url 'login' %}">logged in</a> to submit your soil data.</p>
+    {% endif %}
 </div>
 {% endblock %}
