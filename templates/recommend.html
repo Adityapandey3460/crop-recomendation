@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Recommendations{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1>Crop Recommendations</h1>
+    
+    {% if crops %}
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <ul class="list-group">
+                    {% for crop, reason in crops.items %}
+                        <li class="list-group-item">
+                            <h4>{{ crop }}</h4>
+                            <p>{{ reason }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% else %}
+        <p>No recommendations available. Please make sure to input your data.</p>
+    {% endif %}
+</div>
+{% endblock %}
