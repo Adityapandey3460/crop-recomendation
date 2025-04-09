@@ -3,7 +3,14 @@ from django.contrib.auth import login, authenticate
 from .forms import CustomUserCreationForm  # Use the custom form
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-  # Make sure this import is correct
+import pickle
+import numpy as np
+import pandas as pd
+
+model = pickle.load(open(r'model-training/model.pkl', 'rb'))
+label = pickle.load(open(r'model-training/label.pkl', 'rb'))
+columns = pickle.load(open(r'model-training/columns.pkl', 'rb'))
+
 
 def signup_view(request):
     if request.method == 'POST':
@@ -46,8 +53,14 @@ def index(request):
         ph = request.POST.get('ph')
         rainfall = request.POST.get('rainfall')     
         print(nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall)
+        data = np.array([nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall])
+        df = pd.DataFrame([data], columns=columns)
+        prediction = model.predict(df)
+        global crop
+        crop = label.inverse_transform([prediction])[0]
+        print(crop)
         return redirect('recommend')
     return render(request, 'new.html')
 
 def recommend_view(request):
-    return render(request, "recommend.html")
+    return render(request, "recommend.html", {'crop': crop, 'reason': 'sudip is a goob boy'})
