@@ -1,29 +1,36 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from .forms import CustomUserCreationForm  # Use the custom form
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from .forms import CustomUserCreationForm
 import pickle
 import numpy as np
 import pandas as pd
+import random
 
+# Load ML model and supporting data
 model = pickle.load(open(r'model-training/model.pkl', 'rb'))
 label = pickle.load(open(r'model-training/label.pkl', 'rb'))
 columns = pickle.load(open(r'model-training/columns.pkl', 'rb'))
 
+with open(r'model-training/crop_ranges_95.pkl', "rb") as f:
+    crop_ranges_95 = pickle.load(f)
 
 
+# Signup view
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Optional: auto-login after signup
+            login(request, user)
             return redirect('index')
     else:
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
+
+# Login view
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -33,23 +40,19 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('index')  # Redirect to home after login
+                return redirect('index')
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
-from django.contrib.auth import logout
 
+# Logout view
 def logout_view(request):
     logout(request)
     return redirect('login')
 
-import random
 
-# Load your pre-saved crop range dictionary from pickle
-with open(r'model-training/crop_ranges_95.pkl', "rb") as f:
-    crop_ranges_95 = pickle.load(f)
-
+# Generate reasoning for crop recommendation
 def generate_crop_reasoning(crop_name, user_input, crop_ranges):
     reasoning = []
 
@@ -60,7 +63,7 @@ def generate_crop_reasoning(crop_name, user_input, crop_ranges):
     for feature, value in user_input.items():
         if feature not in crop_range:
             continue
-        
+
         low, high = crop_range[feature]
         param = feature.upper()
 
@@ -87,118 +90,42 @@ def generate_crop_reasoning(crop_name, user_input, crop_ranges):
 
     return "\n".join(reasoning)
 
-# Example user input
-# user_input = {
-#     "N": 90,
-#     "P": 42,
-#     "K": 43,
-#     "temperature": 20.8,
-#     "humidity": 82.0,
-#     "ph": 6.5,
-#     "rainfall": 202.9
-# }
 
-# predicted_crop = "apple"
-
-# # Output reasoning
-# print(f"\n🌱 Recommendation Reason for '{predicted_crop.upper()}':\n")
-# print(generate_crop_reasoning(predicted_crop, user_input, crop_ranges_95))
-
-
-
-
-# def index(request):
-#     if request.method == 'POST':
-#         nitrogen = request.POST.get('nitrogen')
-#         phosphorus = request.POST.get('phosphorus')
-#         potassium = request.POST.get('potassium')
-#         temperature = request.POST.get('temperature')
-#         humidity = request.POST.get('humidity')
-#         ph = request.POST.get('ph')
-#         rainfall = request.POST.get('rainfall')     
-#         user_input = {
-#             "N": nitrogen,
-#             "P": phosphorus,
-#             "K": potassium,
-#             "temperature": temperature,
-#             "humidity": humidity,
-#             "ph": ph,
-#             "rainfall": rainfall
-#         }
-#         print(nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall)
-#         data = np.array([nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall])
-#         df = pd.DataFrame([data], columns=columns)
-#         prediction = model.predict(df)
-#         global crop
-#         crop = label.inverse_transform([prediction])[0]
-#         print(crop)
-#         global reason
-#         reason=generate_crop_reasoning(crop, user_input, crop_ranges_95)
-#         print(generate_crop_reasoning(crop, user_input, crop_ranges_95))
-#         return redirect('recommend')
-#     return render(request, 'new.html')
-
-
+# Index view for crop prediction
 def index(request):
     if not request.user.is_authenticated:
         return redirect('login')
+    
     if request.method == 'POST':
-        nitrogen = float(request.POST.get('nitrogen'))
-        phosphorus = float(request.POST.get('phosphorus'))
-        potassium = float(request.POST.get('potassium'))
-        temperature = float(request.POST.get('temperature'))
-        humidity = float(request.POST.get('humidity'))
-        ph = float(request.POST.get('ph'))
-        rainfall = float(request.POST.get('rainfall'))
+        try:
+            user_input = {
+                "Nitrogen": float(request.POST.get('nitrogen')),
+                "Phosphorus": float(request.POST.get('phosphorus')),
+                "Potassium": float(request.POST.get('potassium')),
+                "temperature": float(request.POST.get('temperature')),
+                "humidity": float(request.POST.get('humidity')),
+                "ph": float(request.POST.get('ph')),
+                "rainfall": float(request.POST.get('rainfall')),
+            }
 
-        user_input = {
-            "Nitrogen": nitrogen,
-            "Phosphorus": phosphorus,
-            "Potassium": potassium,
-            "temperature": temperature,
-            "humidity": humidity,
-            "ph": ph,
-            "rainfall": rainfall
-        }
-        print(user_input)
-        df = pd.DataFrame([list(user_input.values())], columns=list(user_input.keys()))
+            df = pd.DataFrame([list(user_input.values())], columns=list(user_input.keys()))
+            prediction = model.predict(df)
+            crop = prediction[0]
+            reason = generate_crop_reasoning(crop, user_input, crop_ranges_95)
 
-        prediction = model.predict(df)
-<<<<<<< HEAD
-        crop = label.inverse_transform([prediction])[0]
-        reason = 'Sudip is a good boy'
-        print(crop)
-        return redirect(f'recommend/?crop={crop}&reason={reason}')
-=======
-        global crop
-        # If model.predict returns [crop_name], we just extract it
-        crop = prediction[0]
+            return redirect(f'recommend/?crop={crop}&reason={reason}')
 
-        global reason
-        reason = generate_crop_reasoning(crop, user_input, crop_ranges_95)
+        except Exception as e:
+            messages.error(request, f"Something went wrong: {e}")
 
-        return redirect('recommend')
-<<<<<<< HEAD
     return render(request, 'index.html')
-=======
-
->>>>>>> 57af8b11ee09d92c7d81558043002bde299a997d
-    return render(request, 'new.html')
->>>>>>> bd929cdf8768fe12a21b49bc0403da265963d0fc
 
 
+# Recommend result page
 def recommend_view(request):
-<<<<<<< HEAD
     if not request.user.is_authenticated:
         return redirect('login')
-    return render(request, "recommend.html")
 
-=======
-<<<<<<< HEAD
     crop = request.GET.get('crop', '')
     reason = request.GET.get('reason', '')
     return render(request, 'recommend.html', {'crop': crop, 'reason': reason})
-=======
-    return render(request, "recommend.html", {'crop': crop, 'reason': reason})
->>>>>>> 57af8b11ee09d92c7d81558043002bde299a997d
->>>>>>> bd929cdf8768fe12a21b49bc0403da265963d0fc
