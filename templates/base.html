@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<!-- ✅ Navbar -->
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-success">
   <div class="container-fluid">
     <a class="navbar-brand" href="{% url 'index' %}">🌿 Crop Recommender</a>
@@ -20,18 +20,29 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'index' %}">Home</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'login' %}">Login</a>
-        </li>
+        {% if user.is_authenticated %}
+          <!-- Show logout if logged in -->
+          <li class="nav-item">
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="nav-link btn btn-link" style="padding: 8px 0;">Logout</button>
+            </form>
+          </li>
+        {% else %}
+          <!-- Show signup/login if not logged in -->
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Login</a>
+          </li>
+        {% endif %}
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- ✅ Main content -->
+<!-- Main content -->
 <div class="container mt-4">
     {% block content %}
     {% endblock %}

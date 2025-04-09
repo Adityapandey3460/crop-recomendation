@@ -3,8 +3,17 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="text-center">
-  <h1 class="mt-5">🌾 Welcome to the Crop Recommendation System</h1>
-  <p class="lead mt-3">Get accurate crop suggestions based on your soil and climate data.</p>
+<div class="container text-center mt-5">
+    <h1>Welcome to Crop Recommender</h1>
+    <p class="lead">Get personalized crop suggestions based on your soil data</p>
+    
+    {% if user.is_authenticated %}
+        <a href="#" class="btn btn-success btn-lg">Get Recommendations</a>
+    {% else %}
+        <div class="mt-4">
+            <a href="{% url 'login' %}" class="btn btn-success me-2">Login</a>
+            <a href="{% url 'signup' %}" class="btn btn-outline-success">Sign Up</a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
