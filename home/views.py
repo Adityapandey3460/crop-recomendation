@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
   # Make sure this import is correct
 
+
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -34,9 +35,11 @@ from django.contrib.auth import logout
 
 def logout_view(request):
     logout(request)
-    return redirect('index')
+    return redirect('login')
 
 def index(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     if request.method == 'POST':
         nitrogen = request.POST.get('nitrogen')
         phosphorus = request.POST.get('phosphorus')
@@ -47,7 +50,10 @@ def index(request):
         rainfall = request.POST.get('rainfall')     
         print(nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall)
         return redirect('recommend')
-    return render(request, 'new.html')
+    return render(request, 'index.html')
 
 def recommend_view(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     return render(request, "recommend.html")
+

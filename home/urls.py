@@ -7,4 +7,6 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('recommend/', views.recommend_view, name='recommend'),
+    # 
+    # path('', views.base, name='base'),  # Base template or another page
 ]
