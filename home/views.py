@@ -65,19 +65,19 @@ def generate_crop_reasoning(crop_name, user_input, crop_ranges):
 
         if low <= value <= high:
             messages = [
-                f"✔️ {param} value of {value} is ideal for {crop_name}, within the preferred range ({low}–{high}).",
+                f"✔ {param} value of {value} is ideal for {crop_name}, within the preferred range ({low}–{high}).",
                 f"✅ Your {param} level ({value}) perfectly supports optimal growth of {crop_name}.",
                 f"👍 Excellent! {param} is well balanced for {crop_name}, promoting strong yield."
             ]
         elif value < low:
             messages = [
-                f"⚠️ {param} value of {value} is lower than optimal for {crop_name}. Ideal range is {low}–{high}.",
+                f"⚠ {param} value of {value} is lower than optimal for {crop_name}. Ideal range is {low}–{high}.",
                 f"🔽 {param} is slightly deficient for {crop_name}. Consider increasing it toward {low}.",
-                f"⚠️ Insufficient {param} might slow down {crop_name} growth. Raise it closer to {low}–{high}."
+                f"⚠ Insufficient {param} might slow down {crop_name} growth. Raise it closer to {low}–{high}."
             ]
         else:  # value > high
             messages = [
-                f"⚠️ {param} value of {value} is too high for {crop_name}. Recommended range is {low}–{high}.",
+                f"⚠ {param} value of {value} is too high for {crop_name}. Recommended range is {low}–{high}.",
                 f"🔺 Excess {param} may harm {crop_name}'s growth. Try reducing it below {high}.",
                 f"⚡ Too much {param} can stress {crop_name}. Adjust to keep it within {low}–{high}."
             ]
@@ -137,7 +137,6 @@ def generate_crop_reasoning(crop_name, user_input, crop_ranges):
 #         return redirect('recommend')
 #     return render(request, 'new.html')
 
-
 def index(request):
     if request.method == 'POST':
         nitrogen = float(request.POST.get('nitrogen'))
@@ -157,34 +156,31 @@ def index(request):
             "ph": ph,
             "rainfall": rainfall
         }
+
         print(user_input)
+
+        # Create the DataFrame
         df = pd.DataFrame([list(user_input.values())], columns=list(user_input.keys()))
 
+        # 🔧 Rename the columns to match what the model was trained on
+        df.rename(columns={
+            'Nitrogen': 'N',
+            'Phosphorus': 'P',
+            'Potassium': 'K'
+        }, inplace=True)
+
         prediction = model.predict(df)
-<<<<<<< HEAD
-        crop = label.inverse_transform([prediction])[0]
-        reason = 'Sudip is a good boy'
-        print(crop)
-        return redirect(f'recommend/?crop={crop}&reason={reason}')
-=======
+
         global crop
-        # If model.predict returns [crop_name], we just extract it
-        crop = prediction[0]
+        crop = label.inverse_transform([prediction])[0]
 
         global reason
         reason = generate_crop_reasoning(crop, user_input, crop_ranges_95)
 
         return redirect('recommend')
 
->>>>>>> 57af8b11ee09d92c7d81558043002bde299a997d
     return render(request, 'new.html')
 
 
 def recommend_view(request):
-<<<<<<< HEAD
-    crop = request.GET.get('crop', '')
-    reason = request.GET.get('reason', '')
-    return render(request, 'recommend.html', {'crop': crop, 'reason': reason})
-=======
     return render(request, "recommend.html", {'crop': crop, 'reason': reason})
->>>>>>> 57af8b11ee09d92c7d81558043002bde299a997d
