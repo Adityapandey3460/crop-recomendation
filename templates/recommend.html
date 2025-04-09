@@ -3,8 +3,27 @@
 {% block title %}Crop Recommendation | CropAdvisor{% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
 <div class="container">
     <h2 style="text-align: center; margin-bottom: 2rem;">Crop Recommendation</h2>
     <!-- Your form content here -->
+=======
+<div class="container text-center mt-5">
+    <h1>Crop Recommendations</h1>
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            {% if crop %}
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <h4>{{ crop }}</h4>
+                        <p>{{ reason }}</p>
+                    </li>
+                </ul>
+            {% else %}
+                <p>No recommendations available. Please make sure to input your data.</p>
+            {% endif %}
+        </div>
+    </div>
+>>>>>>> bd929cdf8768fe12a21b49bc0403da265963d0fc
 </div>
 {% endblock %}
