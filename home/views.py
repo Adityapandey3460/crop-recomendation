@@ -56,11 +56,13 @@ def index(request):
         data = np.array([nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall])
         df = pd.DataFrame([data], columns=columns)
         prediction = model.predict(df)
-        global crop
         crop = label.inverse_transform([prediction])[0]
+        reason = 'Sudip is a good boy'
         print(crop)
-        return redirect('recommend')
+        return redirect(f'recommend/?crop={crop}&reason={reason}')
     return render(request, 'new.html')
 
 def recommend_view(request):
-    return render(request, "recommend.html", {'crop': crop, 'reason': 'sudip is a goob boy'})
+    crop = request.GET.get('crop', '')
+    reason = request.GET.get('reason', '')
+    return render(request, 'recommend.html', {'crop': crop, 'reason': reason})
