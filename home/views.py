@@ -193,9 +193,10 @@ def recommend_view(request):
 
 import requests
 
+token = "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"
 API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
 headers = {
-    "Authorization": "Bearer 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"
+    "Authorization": f"Bearer {token}"
 }
 
 def simplify_text(text):
