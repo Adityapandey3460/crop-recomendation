@@ -12,6 +12,7 @@ label = pickle.load(open(r'model-training/label.pkl', 'rb'))
 columns = pickle.load(open(r'model-training/columns.pkl', 'rb'))
 
 
+
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -41,7 +42,7 @@ from django.contrib.auth import logout
 
 def logout_view(request):
     logout(request)
-    return redirect('index')
+    return redirect('login')
 
 import random
 
@@ -138,6 +139,8 @@ def generate_crop_reasoning(crop_name, user_input, crop_ranges):
 #     return render(request, 'new.html')
 
 def index(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     if request.method == 'POST':
         nitrogen = float(request.POST.get('nitrogen'))
         phosphorus = float(request.POST.get('phosphorus'))
@@ -179,7 +182,7 @@ def index(request):
 
         return redirect('recommend')
 
-    return render(request, 'new.html')
+    return render(request, 'index.html')
 
 
 def recommend_view(request):
