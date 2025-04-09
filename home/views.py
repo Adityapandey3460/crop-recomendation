@@ -56,9 +56,9 @@ def index(request):
         recommendations = f"Your input data: Nitrogen={nitrogen}, Phosphorus={phosphorus}, Potassium={potassium}, Temperature={temperature}, Humidity={humidity}, pH={ph}, Rainfall={rainfall}"
         print(recommendations)
         # Optionally, you could pass the recommendations to the template to display them
-        return redirect('crop/')
+        return redirect('recommend')
     
     return render(request, "index.html")
 
-def crops_view(request):
-    return render(request, "crops.html")
+def recommend_view(request):
+    return render(request, "recommend.html")
