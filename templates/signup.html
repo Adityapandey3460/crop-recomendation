@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="text-center mt-4">Create an Account</h2>
+    <form method="POST">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label>Username</label>
+        <input type="text" class="form-control" name="username" required>
+      </div>
+      <div class="mb-3">
+        <label>Email</label>
+        <input type="email" class="form-control" name="email" required>
+      </div>
+      <div class="mb-3">
+        <label>Password</label>
+        <input type="password" class="form-control" name="password" required>
+      </div>
+      <button type="submit" class="btn btn-success w-100">Sign Up</button>
+    </form>
+    <div class="text-center mt-3">
+      Already have an account? <a href="{% url 'login' %}">Login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
