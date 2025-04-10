@@ -1,36 +1,29 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate
+from .forms import CustomUserCreationForm  # Use the custom form
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from .forms import CustomUserCreationForm
 import pickle
 import numpy as np
 import pandas as pd
-import random
 
-# Load ML model and supporting data
 model = pickle.load(open(r'model-training/model.pkl', 'rb'))
 label = pickle.load(open(r'model-training/label.pkl', 'rb'))
 columns = pickle.load(open(r'model-training/columns.pkl', 'rb'))
 
-with open(r'model-training/crop_ranges_95.pkl', "rb") as f:
-    crop_ranges_95 = pickle.load(f)
 
 
-# Signup view
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user)  # Optional: auto-login after signup
             return redirect('index')
     else:
         form = CustomUserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
-
-# Login view
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -40,19 +33,23 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('index')
+                return redirect('index')  # Redirect to home after login
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+from django.contrib.auth import logout
 
-# Logout view
 def logout_view(request):
     logout(request)
     return redirect('login')
 
+import random
 
-# Generate reasoning for crop recommendation
+# Load your pre-saved crop range dictionary from pickle
+with open(r'model-training/crop_ranges_95.pkl', "rb") as f:
+    crop_ranges_95 = pickle.load(f)
+
 def generate_crop_reasoning(crop_name, user_input, crop_ranges):
     reasoning = []
 
@@ -63,7 +60,7 @@ def generate_crop_reasoning(crop_name, user_input, crop_ranges):
     for feature, value in user_input.items():
         if feature not in crop_range:
             continue
-
+        
         low, high = crop_range[feature]
         param = feature.upper()
 
@@ -141,8 +138,6 @@ def generate_crop_reasoning(crop_name, user_input, crop_ranges):
 #         return redirect('recommend')
 #     return render(request, 'new.html')
 
-
-# Index view for crop prediction
 def index(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -190,10 +185,5 @@ def index(request):
     return render(request, 'index.html')
 
 
-# Recommend result page
 def recommend_view(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    crop = request.GET.get('crop', '')
-    reason = request.GET.get('reason', '')
-    return render(request, 'recommend.html', {'crop': crop, 'reason': reason})
+    return render(request, "recommend.html", {'crop': crop, 'reason': reason})

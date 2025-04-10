@@ -7,6 +7,21 @@
     <style>
         
 /* Global Styles */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+#loader {
+    display: none;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid var(--primary-color);
+    border-radius: 50%; 
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 1.5rem auto 0 auto;
+}
 * {
     margin: 0;
     padding: 0;
@@ -431,6 +446,7 @@ footer {
         </div>
     </section>
 
+    
     <!-- Recommendation Form Section -->
     <section class="recommendation-section" id="recommend">
         <div class="container">
@@ -445,7 +461,10 @@ footer {
                     {% endfor %}
                 {% endif %}
                 
-                <form method="POST">
+                <form method="POST" id="recommendation">
+                    {% if form_data %}
+                        <input type="hidden" name="form_data" value="{{ form_data|json_script:'form_data' }}">
+                    {% endif %}
                     {% csrf_token %}
                     <div class="form-row">
                         <div class="form-group">
@@ -489,6 +508,10 @@ footer {
                                value="{{ form_data.rainfall|default_if_none:'' }}">
                     </div>
                     <button type="submit" class="btn submit-btn">Recommend Crop</button>
+
+                    <!-- Loader (hidden by default) -->
+                    <div id="loader"></div>
+
                 </form>
             </div>
         </div>
@@ -569,12 +592,25 @@ footer {
             document.getElementById('nav-menu').classList.toggle('show');
         });
 
-        // Close alert messages
-        document.querySelectorAll('.close-alert').forEach(button => {
-            button.addEventListener('click', function() {
-                this.parentElement.style.display = 'none';
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("recommendation");
+            const loader = document.getElementById("loader");
+        
+            if (form && loader) {
+                form.addEventListener("submit", function () {
+                    loader.style.display = "block"; // Show the loader
+                });
+            }
+        
+            // Optional: Auto-hide alert messages
+            const closeButtons = document.querySelectorAll('.close-alert');
+            closeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.parentElement.style.display = 'none';
+                });
             });
         });
+
 
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

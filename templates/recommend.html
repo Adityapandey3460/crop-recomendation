@@ -1,23 +1,121 @@
 {% extends 'base.html' %}
 
-{% block title %}Crop Recommendation | CropAdvisor{% endblock %}
+{% block title %} Recommender | CropAdvisor{% endblock %}
 
 {% block content %}
-<div class="container text-center mt-5">
-    <h1>Crop Recommendations</h1>
-    <div class="row justify-content-center mt-4">
-        <div class="col-md-8">
-            {% if crop %}
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <h4>{{ crop }}</h4>
-                        <p>{{ reason }}</p>
-                    </li>
-                </ul>
-            {% else %}
-                <p>No recommendations available. Please make sure to input your data.</p>
-            {% endif %}
-        </div>
+<style>
+  body {
+    background-color: #f4f8fb;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .results-section {
+    padding: 60px 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 40px;
+    color: #333;
+  }
+
+  .results-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+
+  .result-box {
+    flex: 1;
+    min-width: 300px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px 25px;
+    transition: transform 0.2s ease;
+  }
+
+  .result-box:hover {
+    transform: translateY(-6px);
+  }
+
+  .choice-title {
+    font-size: 20px;
+    color: #4caf50;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .crop-name {
+    font-size: 26px;
+    color: #222;
+    margin-bottom: 10px;
+  }
+
+  .confidence {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 15px;
+  }
+
+  .description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #444;
+  }
+</style>
+
+<section class="results-section">
+  <div class="container">
+    <h2 class="section-title">Recommended Crops</h2>
+
+    {% if crops and crops|length == 3 %}
+    <div class="results-container">
+
+      <!-- Crop 1 -->
+      <div class="result-box">
+        <h3 class="choice-title">Best Choice</h3>
+        <h4 class="crop-name">{{ crops.0.crop }}</h4>
+        <div class="confidence">Confidence: {{ crops.0.confidence }}%</div>
+        <p class="description">{{ crops.0.reason }}</p>
+      </div>
+
+      <!-- Crop 2 -->
+      <div class="result-box">
+        <h3 class="choice-title">Second Choice</h3>
+        <h4 class="crop-name">{{ crops.1.crop }}</h4>
+        <div class="confidence">Confidence: {{ crops.1.confidence }}%</div>
+        <p class="description">{{ crops.1.reason }}</p>
+      </div>
+
+      <!-- Crop 3 -->
+      <div class="result-box">
+        <h3 class="choice-title">Third Choice</h3>
+        <h4 class="crop-name">{{ crops.2.crop }}</h4>
+        <div class="confidence">Confidence: {{ crops.2.confidence }}%</div>
+        <p class="description">{{ crops.2.reason }}</p>
+      </div>
+
     </div>
-</div>
+    {% else %}
+      <p class="text-center">No recommendations available. Please input valid data.</p>
+    {% endif %}
+
+  </div>
+</section>
 {% endblock %}
+
+
+{% comment %} 
+crops = [
+    {"crop": "Wheat", "confidence": 94, "reason": "Wheat is ideal for your region and weather patterns."},
+    {"crop": "Maize", "confidence": 89, "reason": "Maize adapts well to your soil and has good returns."},
+    {"crop": "Barley", "confidence": 85, "reason": "Barley is drought-resistant and harvests quickly."}
+] {% endcomment %}
