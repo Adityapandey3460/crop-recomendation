@@ -4,6 +4,22 @@
 
 {% block content %}
 <style>
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    #loader {
+        display: none;
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid var(--primary);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 1.5rem auto 0 auto;
+    }
+    
     /* Signup Page Specific Styles */
     .auth-container {
         max-width: 500px;
@@ -165,6 +181,10 @@
             <span id="btn-text">Sign Up</span>
             <span id="spinner" style="display: none;">⌛</span>
         </button>
+
+        <!-- Loader (hidden by default) -->
+        <div id="loader"></div>
+
     </form>
 
     <div class="auth-links">
@@ -179,6 +199,11 @@
         const passwordField = document.getElementById('{{ form.password1.id_for_label }}');
         const toggleConfirm = document.getElementById('toggle-confirm');
         const confirmField = document.getElementById('{{ form.password2.id_for_label }}');
+        
+        document.getElementById("signup-form").addEventListener("submit", function() {
+            document.getElementById("loader").style.display = "block";
+        });
+    
         
         togglePassword.addEventListener('click', function() {
             const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';

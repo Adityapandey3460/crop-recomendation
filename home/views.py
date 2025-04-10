@@ -174,12 +174,23 @@ def index(request):
         print("Top 3 class indices for each sample:\n", top3_indices)
         class_names = label.classes_
         top3_class_names = [[class_names[i] for i in row] for row in top3_indices]
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        model_path = os.path.join(BASE_DIR, 'models-traning', 'crop_trend_ranking.pkl')
+        with open(r"model-training/crop_trend_ranking.pkl", "rb") as f:
+            trend_df = pickle.load(f)
+        
+            filtered = trend_df[trend_df["Crop"].isin(top3_class_names[0])]
+
+            filtered_sorted = filtered.sort_values(by="TrendScore", ascending=False)
+        
+        print("📊 Final Top 3 Sorted by Market Trend:")
+        print(filtered_sorted)
         print("Top 3 predicted classes per sample:\n", top3_class_names)
         reason =  generate_crop_reasoning
         global crops
         crops = [
-            {'crop': top3_class_names[0][0], 'confidence':67, 'reason':reason(top3_class_names[0][0], user_input, crop_ranges_95)}, 
-            {'crop': top3_class_names[0][1], 'confidence':67, 'reason':reason(top3_class_names[0][1], user_input, crop_ranges_95)}, {'crop':top3_class_names[0][2], 'confidence':67, 'reason':reason(top3_class_names[0][2], user_input, crop_ranges_95)}
+            {'crop': filtered_sorted['Crop'].iloc[0], 'confidence':95, 'reason':reason(filtered_sorted['Crop'].iloc[0], user_input, crop_ranges_95)}, 
+            {'crop': filtered_sorted['Crop'].iloc[1], 'confidence':65, 'reason':reason(filtered_sorted['Crop'].iloc[1], user_input, crop_ranges_95)}, {'crop':filtered_sorted['Crop'].iloc[2], 'confidence':25, 'reason':reason(filtered_sorted['Crop'].iloc[2], user_input, crop_ranges_95)}
         ]
     
         print(crops)
@@ -190,7 +201,7 @@ def index(request):
     
 
 def recommend_view(request):
-    return render(request, "recommend.html", {'crop': crops})
+    return render(request, "recommend.html", {'crops': crops})
 
 import requests
 
@@ -257,6 +268,7 @@ def model_train():
                 test_size=0.1,
                 random_state=42
             )
+        
         model.partial_fit(x_train, y_train, classes=np.unique(data['label']))
 
         sample = x_test.iloc[0].values.reshape(1, -1)
