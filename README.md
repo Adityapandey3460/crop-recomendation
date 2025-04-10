@@ -24,8 +24,7 @@ Python, Scikit-learn, Pandas, NumPy
 
 Jupyter Notebook / Python Script
 
-🚀 Future Enhancements:
-Add a user-friendly GUI
+Reasoning : From the distribution of the data we find out the best range values for which a crop can be grown. The used an LLM's api to show the reasoning to the user more clearly and descriptively.
 
 Include more features (rainfall, soil type)
 
