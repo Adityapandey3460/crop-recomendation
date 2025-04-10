@@ -1,7 +1,7 @@
 Project Name: Crop Prediction Model using ML
 
 Description:
-This project uses MACHINE Learning algorithm to predict the most suitable crop based on the given soil humidity, pH level, and temperature. It helps farmers and agricultural planners make smart crop decisions based on environmental data.
+This project uses MACHINE Learning algorithm to predict the most suitable crop based on the given soil health, weather conditions and market trend. It helps farmers and agricultural planners make smart crop decisions based on environmental data.
 
 Features:
 
@@ -9,13 +9,13 @@ Predicts best crop using ML algorithms.
 
 Input features:
 
-NPK values
+Nitrogen(N), Phosphorous(P), Potassium(K) values in (kg/ha)
 
-Soil Humidity
+Soil Humidity(%)
 
 pH Value
 
-Temperature
+Temperature (°C)
 
 High accuracy with efficient performance
 
