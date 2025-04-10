@@ -7,11 +7,6 @@ import pickle
 import numpy as np
 import pandas as pd
 
-model = pickle.load(open(r'model-training/model.pkl', 'rb'))
-label = pickle.load(open(r'model-training/label.pkl', 'rb'))
-columns = pickle.load(open(r'model-training/columns.pkl', 'rb'))
-
-
 
 def signup_view(request):
     if request.method == 'POST':
@@ -161,26 +156,33 @@ def index(request):
         }
 
         print(user_input)
-
-        # Create the DataFrame
+        
+        model = pickle.load(open(r'model-training/model.pkl', 'rb'))
+        label = pickle.load(open(r'model-training/label.pkl', 'rb'))
+        columns = pickle.load(open(r'model-training/columns.pkl', 'rb'))
         df = pd.DataFrame([list(user_input.values())], columns=list(user_input.keys()))
 
-        # 🔧 Rename the columns to match what the model was trained on
         df.rename(columns={
             'Nitrogen': 'N',
             'Phosphorus': 'P',
             'Potassium': 'K'
         }, inplace=True)
 
-        prediction = model.predict(df)
-
-        global crop
-        crop = label.inverse_transform([prediction])[0]
-
-        global reason
-        text = generate_crop_reasoning(crop, user_input, crop_ranges_95)
-        reason = simplify_text(text)
-        print(reason)
+        prediction = model.predict_proba(df)
+        safe_scores = np.nan_to_num(prediction, nan=-np.inf)
+        top3_indices = np.argsort(safe_scores, axis=1)[:, -3:][:, ::-1]
+        print("Top 3 class indices for each sample:\n", top3_indices)
+        class_names = label.classes_
+        top3_class_names = [[class_names[i] for i in row] for row in top3_indices]
+        print("Top 3 predicted classes per sample:\n", top3_class_names)
+        reason =  generate_crop_reasoning
+        global crops
+        crops = [
+            {'crop': top3_class_names[0][0], 'confidence':67, 'reason':reason(top3_class_names[0][0], user_input, crop_ranges_95)}, 
+            {'crop': top3_class_names[0][1], 'confidence':67, 'reason':reason(top3_class_names[0][1], user_input, crop_ranges_95)}, {'crop':top3_class_names[0][2], 'confidence':67, 'reason':reason(top3_class_names[0][2], user_input, crop_ranges_95)}
+        ]
+    
+        print(crops)
         return redirect('recommend')
 
     return render(request, 'index.html')
@@ -188,8 +190,7 @@ def index(request):
     
 
 def recommend_view(request):
-    return render(request, "recommend.html", {'crop': crop, 'reason': reason})
-
+    return render(request, "recommend.html", {'crop': crops})
 
 import requests
 
@@ -222,3 +223,81 @@ def simplify_text(text):
     except Exception as e:
         print("Error:", response.status_code, response.text)
         return None
+    
+
+
+
+import pickle
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+
+import os
+
+def model_train():
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    model_path = os.path.join(BASE_DIR, 'models', 'model.pkl')
+    classes_path = os.path.join(BASE_DIR, 'models', 'classes.pkl')
+    label_path = os.path.join(BASE_DIR, 'models', 'label.pkl')
+    data = fetch_data_as_dataframe()
+    data = data.drop(columns='id')
+    print('data base :', data.columns)
+    if data.shape[0] > 2:
+        if not os.path.exists(model_path):
+            print("⚠️ Model file not found!")
+            return
+
+        model = pickle.load(open(model_path, 'rb'))
+        classes = pickle.load(open(classes_path, 'rb'))
+        label = pickle.load(open(label_path, 'rb'))
+        data['label'] = label.transform(data['label'])
+        x_train, x_test, y_train, y_test = train_test_split(
+                data.drop(columns=['label']),
+                data['label'],
+                test_size=0.1,
+                random_state=42
+            )
+        model.partial_fit(x_train, y_train, classes=np.unique(data['label']))
+
+        sample = x_test.iloc[0].values.reshape(1, -1)
+        probs = model.predict_proba(sample)
+        print("Prediction probabilities:", probs)
+
+        pickle.dump(model, open(os.path.join(BASE_DIR, 'models', 'model1.pkl'), 'wb'))
+
+import sqlite3
+
+def insert_user(N, P, K, temperature, humidity, ph, rainfall, label):
+    conn = sqlite3.connect('mydata3.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            N REAL,
+            P REAL,
+            K REAL,
+            temperature REAL,
+            humidity REAL,
+            ph REAL,
+            rainfall REAL,
+            label TEXT
+        )
+    ''')
+
+    cursor.execute('''
+        INSERT INTO users (N, P, K, temperature, humidity, ph, rainfall, label)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (N, P, K, temperature, humidity, ph, rainfall, label))
+
+    conn.commit()
+    conn.close()
+    print("User data added successfully.")
+
+def fetch_data_as_dataframe():
+    conn = sqlite3.connect('mydata3.db')
+    
+    df = pd.read_sql_query("SELECT * FROM users", conn)
+    
+    conn.close()
+    return df
