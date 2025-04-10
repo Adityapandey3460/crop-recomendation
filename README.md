@@ -1,57 +1,52 @@
-Project Name: Crop Prediction Model using ML
+🌾 Crop Prediction Model using ML
+This project leverages Machine Learning to predict the most suitable crop based on key agricultural inputs like soil nutrients, humidity, pH, and temperature. It empowers farmers and planners to make informed crop decisions using environmental data and market trends.
 
-Description:
-This project uses MACHINE Learning algorithm to predict the most suitable crop based on the given soil health, weather conditions and market trend. It helps farmers and agricultural planners make smart crop decisions based on environmental data.
+🔍 Features:
+Predicts the best crop using Random Forest, Decision Tree, and Logistic Regression algorithms.
 
-Features:
+Takes user inputs for:
 
-Predicts best crop using ML algorithms.
+Nitrogen (N), Phosphorous (P), Potassium (K) [kg/ha]
 
-Input features:
-
-Nitrogen(N), Phosphorous(P), Potassium(K) values in (kg/ha)
-
-Soil Humidity(%)
+Soil Humidity [%]
 
 pH Value
 
-Temperature (°C)
+Temperature [°C]
 
-High accuracy with efficient performance
+High accuracy and performance on labeled crop datasets.
 
-Technologies Used:
-
-Python
-
-Scikit-learn
-
-Pandas
-
-NumPy
+🛠 Technologies:
+Python, Scikit-learn, Pandas, NumPy
 
 Jupyter Notebook / Python Script
 
+🚀 Future Enhancements:
+Add a user-friendly GUI
+
+Include more features (rainfall, soil type)
+
+Deploy as a web or mobile application
+
+📦 Requirements:
+﻿asgiref==3.8.1
+Django==5.2
+gunicorn==23.0.0
+joblib==1.4.2
+numpy==2.2.4
+packaging==24.2
+pandas==2.2.3
+python-dateutil==2.9.0.post0
+pytz==2025.2
+scikit-learn==1.5.0
+scipy==1.15.2
+six==1.17.0
+sqlparse==0.5.3
+threadpoolctl==3.6.0
+tzdata==2025.2
+requests
+
+👥 Team:
+Akash Mondal, Sudip Mondal, Aditya Pandey, Utsav Dinda
 
 
-Enter values for NPK values Humidity, pH, and Temperature when prompted.
-
-Get the predicted crop as output.
-
-
-Model Info:
-
-Algorithm: Random Forest Classifier,decisions tree, logistic regrassion.
-
-Trained on labeled crop dataset
-
-Evaluated for accuracy and performance
-
-Future Improvements:
-
-Add GUI for user-friendly interface
-
-Include more features like rainfall, soil type
-
-Deploy as a web or mobile app
-
-Team Members : Akash Mondal, Sudip Mondal, Aditya Pandey, Utsav Dinda
