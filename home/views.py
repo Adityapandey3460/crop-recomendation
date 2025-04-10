@@ -178,12 +178,47 @@ def index(request):
         crop = label.inverse_transform([prediction])[0]
 
         global reason
-        reason = generate_crop_reasoning(crop, user_input, crop_ranges_95)
-
+        text = generate_crop_reasoning(crop, user_input, crop_ranges_95)
+        reason = simplify_text(text)
+        print(reason)
         return redirect('recommend')
 
     return render(request, 'index.html')
 
+    
 
 def recommend_view(request):
     return render(request, "recommend.html", {'crop': crop, 'reason': reason})
+
+
+import requests
+
+token = "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"
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
+headers = {
+    "Authorization": f"Bearer {token}"
+}
+
+def simplify_text(text):
+    prompt = f"{text}\n\nGive a simplified and informative version of the above text, no need to mention problems—just suggest what to do within 100 words."
+    payload = {
+        "inputs": prompt,
+        "parameters": {
+            "temperature": 0.7,
+            "max_new_tokens": 300
+        }
+    }
+
+    response = requests.post(API_URL, headers=headers, json=payload)
+    try:
+        result = response.json()
+        output = result[0]["generated_text"]
+        output = output.replace("Give a simplified and informative version of the above text, no need to mention problems—just suggest what to do within 100 words.", "")
+        output =  output.replace(text, "")
+        output = output.strip()
+        print(output)
+        return output
+    
+    except Exception as e:
+        print("Error:", response.status_code, response.text)
+        return None
