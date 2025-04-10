@@ -54,5 +54,4 @@ Include more features like rainfall, soil type
 
 Deploy as a web or mobile app
 
-Author:
-AKASH MONDAL
+Team Members : Akash Mondal, Sudip Mondal, Aditya Pandey, Utsav Dinda
