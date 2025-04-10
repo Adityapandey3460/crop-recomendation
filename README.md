@@ -2,7 +2,10 @@
 This project leverages Machine Learning to predict the most suitable crop based on key agricultural inputs like soil nutrients, humidity, pH, and temperature. It empowers farmers and planners to make informed crop decisions using environmental data and market trends.
 
 🔍 Features:
-Predicts the best crop using Random Forest, Decision Tree, and Logistic Regression algorithms.
+Predicts the best crop using SGDRegressor. It also choose the best crop for current market trend.
+
+Why use SGDRegressor:
+It gives good accuracy in this type of data and also supports partial-fit to train the model in the new incoming data. Because of this we dont need to re-train the model on the whole data.
 
 Takes user inputs for:
 
